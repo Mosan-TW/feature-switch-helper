@@ -1,0 +1,31 @@
+{
+  "name": "@havppen/feature-switch-helper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "type": "module",
+  "files": [
+    "dist",
+    "scripts",
+    "src",
+    "package.json",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf dist && tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "globby": "^16.0.0",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1"
+  }
+}
