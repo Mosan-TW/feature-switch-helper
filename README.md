@@ -1,37 +1,35 @@
-# Feature Switch Helper 說明書
-
-這是一個用於管理和檢查功能開關（Feature Switch）的輔助工具模組。它允許你根據配置啟用或禁用應用程式中的特定功能。
+# Feature Switch Helper Manual
 
 This is a helper module for managing and checking feature switches. It allows you to enable or disable specific features in your application based on configuration.
 
-For English version, please visit: [Feature Switch Helper Documentation (English)](./README_EN.md)
+中文版本請參閱：[Feature Switch Helper 說明書 (中文)](./README_TC.md)
 
-> 贊助商：
-> 本專案由 [Havppen](https://www.havppen.com/) 贊助開發：[創建你的專屬「線上課程平台」，即刻將知識變現！](https://www.havppen.com/)
+> Sponsor:
+> This project is sponsored by [Havppen](https://www.havppen.com/): [Create your own "online course platform" and monetize your knowledge instantly!](https://www.havppen.com/)
 
-# 目錄
+# Table of Contents
 
-- [使用方式](#使用方式)
-  - [初始化](#初始化)
-  - [設定與使用功能開關](#設定與使用功能開關)
-  - [檢查功能開關](#檢查功能開關)
-  - [執行專案](#執行專案)
-  - [提交程式碼](#提交程式碼)
-- [設置 feature-switch.json 設定檔](#設置-feature-switchjson-設定檔)
-  - [features 屬性](#features-屬性)
-  - [在生產環境中啟用功能開關](#在生產環境中啟用功能開關)
-  - [validationOptions 屬性](#validationoptions-屬性)
-- [使用 isFeatureEnabled 函數](#使用-isfeatureenabled-函數)
-  - [錯誤的 isFeatureEnabled 用法](#錯誤的-isfeatureenabled-用法)
-  - [避免將 isFeatureEnabled 註解掉](#避免將-isfeatureenabled-註解掉)
-- [使用 getFeatureDef 函數](#使用-getfeaturedef-函數)
-- [結語](#結語)
+- [How to Use](#how-to-use)
+  - [Initialization](#initialization)
+  - [Setting and Using Feature Switches](#setting-and-using-feature-switches)
+  - [Checking Feature Switches](#checking-feature-switches)
+  - [Running the Project](#running-the-project)
+  - [Committing Code](#committing-code)
+- [Setting up the feature-switch.json Configuration File](#setting-up-the-feature-switchjson-configuration-file)
+  - [The `features` Property](#the-features-property)
+  - [Enabling Feature Switches in a Production Environment](#enabling-feature-switches-in-a-production-environment)
+  - [The `validationOptions` Property](#the-validationoptions-property)
+- [Using the `isFeatureEnabled` Function](#using-the-isfeatureenabled-function)
+  - [Incorrect Usage of `isFeatureEnabled`](#incorrect-usage-of-isfeatureenabled)
+  - [Avoid Commenting Out `isFeatureEnabled`](#avoid-commenting-out-isfeatureenabled)
+- [Using the `getFeatureDef` Function](#using-the-getfeaturedef-function)
+- [Conclusion](#conclusion)
 
-## 使用方式
+## How to Use
 
-### 初始化
+### Initialization
 
-在使用 `FeatureSwitchHelper` 之前，你必須先在你的應用程式啟動時進行初始化。這通常在你的主檔案（例如 `main.ts`）中完成。
+Before using `FeatureSwitchHelper`, you must initialize it when your application starts. This is usually done in your main file (e.g., `main.ts`).
 
 ```typescript
 import { FeatureSwitchHelper, Environment } from "feature-switch-helper";
@@ -44,21 +42,21 @@ FeatureSwitchHelper.init(environment, featureSwitchConfig);
 // ...
 ```
 
-### 設定與使用功能開關：
+### Setting and Using Feature Switches:
 
-- 先在專案根目錄建立一個 `feature-switch.json` 設定檔，並在其中定義你的功能開關。詳見[設置 feature-switch.json 設定檔](#設置-feature-switchjson-設定檔)。
+- First, create a `feature-switch.json` configuration file in the project root directory and define your feature switches in it. See [Setting up the feature-switch.json Configuration File](#setting-up-the-feature-switchjson-configuration-file) for details.
 
-- 在專案中需要使用功能開關的地方，匯入 `FeatureSwitchHelper`，並用它來判斷特定的功能是否已啟用。詳見[使用 isFeatureEnabled 函數](#使用-isfeatureenabled-函數)。
+- In your project where you need to use a feature switch, import `FeatureSwitchHelper` and use it to determine if a specific feature is enabled. See [Using the isFeatureEnabled Function](#using-the-isfeatureenabled-function) for details.
 
-- 建議功能開關的命名遵循以下原則：
-  1. 使用小寫駝峰式命名法（camelCase）。
-  2. 將功能的狀態（如 wip、deprecated、experimental）作為前綴，並以底線分隔，例如 `wip_`、`deprecated_`、`experimental_`。
-  3. 確保功能名稱具有描述性，能夠清楚表達其用途。
-  4. 例如：`wip_newDashboard`、`deprecated_oldApi`、`experimental_aiFeature`。
+- It is recommended to follow these principles for naming feature switches:
+  1. Use camelCase.
+  2. Prefix the feature's status (like wip, deprecated, experimental) followed by an underscore, for example, `wip_`, `deprecated_`, `experimental_`.
+  3. Ensure the feature name is descriptive and clearly expresses its purpose.
+  4. For example: `wip_newDashboard`, `deprecated_oldApi`, `experimental_aiFeature`.
 
-### 檢查功能開關：
+### Checking Feature Switches:
 
-- 先在 `package.json` 中新增以下 script 指令：
+- First, add the following script command to your `package.json`:
 
   ```json
   "scripts": {
@@ -66,18 +64,18 @@ FeatureSwitchHelper.init(environment, featureSwitchConfig);
   }
   ```
 
-  - 請自行更改路徑，以指向 `feature-switch-helper` 套件中的 `validate.js` 腳本。
-  - 附註：這裡故意使用 `node` 來執行腳本，因為 `tsx` 不支援 `class-transformer` 等套件所需的裝飾器（decorators），會導致驗證腳本無法正常運行。
+  - Please change the path to point to the `validate.js` script in the `feature-switch-helper` package.
+  - Note: We intentionally use `node` to run the script because `tsx` does not support the decorators required by packages like `class-transformer`, which would cause the validation script to fail.
 
-- 執行 `pnpm feature-switch:validate` 指令，可協助檢查程式碼中使用的功能開關是否符合設定檔中的定義。若專案尚未編譯，請先執行 `pnpm build` 再執行此指令。此指令會確保：
-  - 程式碼中使用的功能開關，皆有在 `feature-switch.json` 設定檔中被定義。
-  - `feature-switch.json` 設定檔中定義的功能開關，皆有在程式碼中被使用（即不應有閒置未使用的功能開關）。
-  - 這也有助於發現因為拼寫錯誤導致設定檔與程式碼不一致的問題。
+- Run the `pnpm feature-switch:validate` command to help check if the feature switches used in the code are consistent with the definitions in the configuration file. If the project has not been compiled, run `pnpm build` first. This command ensures that:
+  - All feature switches used in the code are defined in the `feature-switch.json` configuration file.
+  - All feature switches defined in the `feature-switch.json` configuration file are used in the code (i.e., there should be no idle, unused feature switches).
+  - This also helps to find inconsistencies between the configuration file and the code due to typos.
 
-### 執行專案：
+### Running the Project:
 
-- 正常啟動你的 NestJS 專案，功能開關將根據 `feature-switch.json` 設定檔中的配置來啟用或禁用相應的功能。
-- 專案啟動時，會在 console log 中列出所有已啟用及未啟用的功能開關，方便你確認目前的功能狀態。例如：
+- Start your NestJS project normally. The feature switches will enable or disable corresponding features based on the configuration in `feature-switch.json`.
+- When the project starts, it will list all enabled and disabled feature switches in the console log, allowing you to confirm the current feature status. For example:
   ```
   Enabled Features: [
     "exampleFeature01"
@@ -86,16 +84,16 @@ FeatureSwitchHelper.init(environment, featureSwitchConfig);
     "exampleFeature02"
   ]
   ```
-- 當呼叫了 `FeatureSwitchHelper.isFeatureEnabled` 函數，會在 console log 中紀錄該功能開關的使用情況。例如：`Feature "exampleFeature01" is used.`或`Feature "exampleFeature02" is skipped.`。
-- 注意：專案運行時若使用了未定義的功能開關，將會拋出錯誤。若未妥善捕捉處理此錯誤，可能導致專案中止運行。另外，專案在執行階段並無法檢測出「設定檔中已定義，但未使用的功能開關」。經常執行 `pnpm feature-switch:validate` 指令，可協助檢查並避免此類問題。
+- When the `FeatureSwitchHelper.isFeatureEnabled` function is called, it will log the usage of that feature switch in the console. For example: `Feature "exampleFeature01" is used.` or `Feature "exampleFeature02" is skipped.`.
+- Note: If an undefined feature switch is used while the project is running, an error will be thrown. If this error is not properly caught and handled, it may cause the project to terminate. Additionally, the project cannot detect "defined but unused feature switches" at runtime. Regularly running `pnpm feature-switch:validate` can help check for and avoid such issues.
 
-### 提交程式碼：
+### Committing Code:
 
-- 在使用 git 提交 Commit 前，會自動執行 `pnpm feature-switch:validate` 指令，確保所有功能開關的使用情況符合設定檔中的定義。若檢查未通過，Commit 將被阻止，請先修正相關問題後再嘗試提交。（使用了 Husky 來實現此功能）
+- Before committing with git, the `pnpm feature-switch:validate` command will be automatically executed to ensure that all feature switch usage complies with the definitions in the configuration file. If the check fails, the commit will be blocked. Please fix the related issues before trying to commit again. (This is implemented using Husky).
 
-## 設置 feature-switch.json 設定檔
+## Setting up the feature-switch.json Configuration File
 
-一個 `feature-switch.json` 設定檔的結構通常長得像這樣：
+A `feature-switch.json` configuration file typically looks like this:
 
 ```json
 {
@@ -123,45 +121,45 @@ FeatureSwitchHelper.init(environment, featureSwitchConfig);
 }
 ```
 
-※注意：此文件內容有可能因為疏於維護而與最新版本的實際格式不符，請以 [`feature-switch-config.dto.ts`](src/dto/feature-switch-config.dto.ts) 中定義的格式為準。
+※Note: The content of this document may not match the latest format due to a lack of maintenance. Please refer to the format defined in [`feature-switch-config.dto.ts`](src/dto/feature-switch-config.dto.ts).
 
-### features 屬性
+### The `features` Property
 
-`features` 物件包含了所有的功能開關定義，該物件的每個屬性名稱即為功能開關的名稱，而其值則為一個物件，定義了該功能開關的各種屬性：
+The `features` object contains all feature switch definitions. Each property name of this object is the name of a feature switch, and its value is an object that defines the various properties of that feature switch:
 
-- `isForceEnabled`: 布林值，表示該功能是否被強制啟用。這意味著無論專案運行在哪個環境中，該功能都會被啟用。包含開發、測試、UAT 和生產環境。可省略，預設值為 `false`。
-- `isDevFeature`: 布林值，表示該功能是否為開發環境專用功能。可省略，預設值為 `false`。
-- `isTestFeature`: 布林值，表示該功能是否為測試環境專用功能。可省略，預設值為 `false`。
-- `isUatFeature`: 布林值，表示該功能是否為 UAT（使用者驗收測試）環境專用功能。可省略，預設值為 `false`。
-- `note`: 字串，提供關於該功能開關的備註或說明。可省略。
+- `isForceEnabled`: A boolean value indicating whether the feature is forcibly enabled. This means the feature will be enabled regardless of the environment the project is running in, including development, testing, UAT, and production. Optional, defaults to `false`.
+- `isDevFeature`: A boolean value indicating whether the feature is for the development environment only. Optional, defaults to `false`.
+- `isTestFeature`: A boolean value indicating whether the feature is for the testing environment only. Optional, defaults to `false`.
+- `isUatFeature`: A boolean value indicating whether the feature is for the UAT (User Acceptance Testing) environment only. Optional, defaults to `false`.
+- `note`: A string providing a note or description about the feature switch. Optional.
 
-※注意：此文件內容有可能因為疏於維護而與最新版本的實際格式不符，請以 [`feature-switch-config.dto.ts`](src/dto/feature-switch-config.dto.ts) 中定義的格式為準。
+※Note: The content of this document may not match the latest format due to a lack of maintenance. Please refer to the format defined in [`feature-switch-config.dto.ts`](src/dto/feature-switch-config.dto.ts).
 
-### 在生產環境中啟用功能開關
+### Enabling Feature Switches in a Production Environment
 
-在設計上，我故意沒有加入 `isProdFeature` 屬性，因為這會允許某些功能只在生產環境中啟用，而忽略其他環境。這樣的設計可能會導致開發和測試階段無法充分驗證這些功能，增加了在生產環境中出現問題的風險。因此，若要在生產環境中啟用功能開關，則必須使用 `isForceEnabled` 屬性，這會確保當一個功能在生產環境中啟用時，開發和測試階段也能夠進行充分的驗證。
+By design, I have intentionally not included an `isProdFeature` property. This is because it would allow certain features to be enabled only in the production environment, bypassing other environments. Such a design could lead to inadequate validation of these features during development and testing, increasing the risk of problems in production. Therefore, to enable a feature switch in a production environment, the `isForceEnabled` property must be used. This ensures that when a feature is enabled in production, it can also be fully validated during development and testing.
 
-另外，依照正常流程，當一個功能已經足夠成熟，可在生產環境中使用時，其實不應該繼續使用功能開關來控制它的啟用狀態。相反地，應該將該功能的程式碼直接整合到主程式碼庫中，並移除相關的功能開關設定。這樣可以減少不必要的複雜性，並確保所有環境中的功能一致性。
+Furthermore, in a normal workflow, when a feature is mature enough to be used in production, it should no longer be controlled by a feature switch. Instead, the feature's code should be directly integrated into the main codebase, and the relevant feature switch configuration should be removed. This reduces unnecessary complexity and ensures feature consistency across all environments.
 
-換句話說，在生產環境中使用功能開關這件事本身就是不正常的情況，因此才會使用 `Force` (強制) 這個單字來命名 `isForceEnabled` 屬性，以強調這種情況的特殊性。
+In other words, using a feature switch in a production environment is itself an unusual situation. That's why the word "Force" is used in the `isForceEnabled` property name—to emphasize the special nature of this case.
 
-Tech Lead 在進行程式碼審查（Code Review）時，應特別注意使用了 `isForceEnabled` 屬性的功能開關，確認是否為功能開關的誤用，並要求移除功能開關，將功能直接整合到主程式碼中。
+Tech Leads should pay special attention to feature switches that use the `isForceEnabled` property during code reviews to check for misuse of feature switches and request their removal, integrating the feature directly into the main code.
 
-### validationOptions 屬性
+### The `validationOptions` Property
 
-`validationOptions` 物件用於設定功能開關驗證的選項：
+The `validationOptions` object is used to configure feature switch validation options:
 
-- `shouldNotUseUndefinedFeatureSwitches`: 布林值，表示是否應該禁止使用未定義的功能開關。可省略，預設值為 `true`。不建議關閉此選項，以避免拼寫錯誤導致的問題。
-- `shouldUseAllDefinedFeatureSwitches`: 布林值，表示是否應該要求所有定義的功能開關都被使用。可省略，預設值為 `true`。不建議關閉此選項，因為過多的閒置功能開關會增加維護成本。
-- `filePatterns`: 字串陣列，指定要檢查的檔案模式。是必要參數，且不得為空陣列。
+- `shouldNotUseUndefinedFeatureSwitches`: A boolean value indicating whether the use of undefined feature switches should be prohibited. Optional, defaults to `true`. It is not recommended to disable this option to avoid problems caused by typos.
+- `shouldUseAllDefinedFeatureSwitches`: A boolean value indicating whether all defined feature switches should be required to be used. Optional, defaults to `true`. It is not recommended to disable this option, as too many idle feature switches increase maintenance costs.
+- `filePatterns`: An array of strings specifying the file patterns to check. This is a required parameter and must not be an empty array.
 
-※注意：此文件內容有可能因為疏於維護而與最新版本的實際格式不符，請以 [`feature-switch-config.dto.ts`](src/dto/feature-switch-config.dto.ts) 中定義的格式為準。
+※Note: The content of this document may not match the latest format due to a lack of maintenance. Please refer to the format defined in [`feature-switch-config.dto.ts`](src/dto/feature-switch-config.dto.ts).
 
-## 使用 isFeatureEnabled 函數
+## Using the `isFeatureEnabled` Function
 
-請在程式碼中使用 `FeatureSwitchHelper.isFeatureEnabled` 函數來檢查功能開關的狀態。藉此將特定功能包裝到功能開關的控制之下。
+Please use the `FeatureSwitchHelper.isFeatureEnabled` function in your code to check the status of a feature switch. This allows you to wrap specific functionality under the control of a feature switch.
 
-範例：
+Example:
 
 ```typescript
 import { FeatureSwitchHelper } from "feature-switch-helper";
@@ -176,14 +174,14 @@ function getExampleFeature() {
   }
 }
 
-// 或者
+// Or
 const ExampleFeature = FeatureSwitchHelper.isFeatureEnabled(
   "wip_exampleFeature"
 )
   ? WIP_ExampleService
   : ExampleService;
 
-// 如果希望確保名稱拼寫正確，則可以定義一個型別來限制功能名稱：
+// To ensure correct spelling, you can define a type to restrict feature names:
 type FeatureNames =
   | "wip_exampleFeature"
   | "wip_exampleFeature01"
@@ -195,26 +193,26 @@ const ExampleFeature2 = FeatureSwitchHelper.isFeatureEnabled<FeatureNames>(
   : ExampleService;
 ```
 
-### 錯誤的 isFeatureEnabled 用法
+### Incorrect Usage of `isFeatureEnabled`
 
-注意，以下做法會導致功能開關驗證工具無法正確識別功能開關，請勿：
+Note that the following practices will prevent the feature switch validation tool from correctly identifying feature switches. Please do not:
 
-- 將 `FeatureSwitchHelper.isFeatureEnabled` 函數包裝成其他函數或工具
-- 使用變數來傳遞功能開關名稱
+- Wrap the `FeatureSwitchHelper.isFeatureEnabled` function in other functions or utilities.
+- Use variables to pass feature switch names.
 
-以下是錯誤範例，好寶寶不要學：
+Here is an incorrect example, please do not follow it:
 
 ```typescript
 import { FeatureSwitchHelper } from "feature-switch-helper";
 
-// 不可以包裝成其他函數
+// Do not wrap it in another function
 function checkFeature(featureName: string) {
-  // 不可以使用變數傳遞功能開關名稱
-  return FeatureSwitchHelper.isFeatureEnabled(featureName); // 使用了變數傳遞功能開關名稱，導致無法被驗證工具識別
+  // Do not use a variable to pass the feature switch name
+  return FeatureSwitchHelper.isFeatureEnabled(featureName); // Using a variable prevents identification by the validation tool
 }
 
 function getExampleFeature() {
-  // 因為函數名稱不同，導致無法被驗證工具識別
+  // The different function name prevents identification by the validation tool
   if (checkFeature("wip_exampleFeature")) {
     return WIP_ExampleService;
   } else {
@@ -223,44 +221,44 @@ function getExampleFeature() {
 }
 ```
 
-### 避免將 isFeatureEnabled 註解掉
+### Avoid Commenting Out `isFeatureEnabled`
 
-目前功能開關驗證工具並無法區別「註解掉的程式碼」與「實際執行的程式碼」。因此若將 `FeatureSwitchHelper.isFeatureEnabled` 函數呼叫轉為註解，功能開關驗證工具仍會將其視為有效使用的功能開關。
+Currently, the feature switch validation tool cannot distinguish between commented-out code and actual executed code. Therefore, if you comment out a call to `FeatureSwitchHelper.isFeatureEnabled`, the validation tool will still treat it as a validly used feature switch.
 
-例如：
+For example:
 
 ```typescript
 import { FeatureSwitchHelper } from "feature-switch-helper";
-// if (FeatureSwitchHelper.isFeatureEnabled('wip_exampleFeature')) { //<-- 還是會被發現
+// if (FeatureSwitchHelper.isFeatureEnabled('wip_exampleFeature')) { //<-- This will still be detected
 //   return WIP_ExampleService
 // }
 ```
 
-這可能導致功能開關在管理及維護上的問題。當功能開關變得很多時，我們會難以追蹤哪些功能開關是實際被使用的，哪些是已經不再需要的。
+This can lead to management and maintenance issues with feature switches. When there are many feature switches, it becomes difficult to track which ones are actually in use and which are no longer needed.
 
-因此請避免將功能開關的使用註解掉，若某個功能不再需要，則應直接移除相關程式碼及功能開關設定。
+Therefore, please avoid commenting out the use of feature switches. If a feature is no longer needed, the relevant code and feature switch configuration should be removed completely.
 
-## 使用 getFeatureDef 函數
+## Using the `getFeatureDef` Function
 
-`getFeatureDef` 函數可用於獲取功能開關的定義資訊，這對於瞭解功能的用途及狀態非常有幫助。
+The `getFeatureDef` function can be used to get the definition information of a feature switch, which is very helpful for understanding the purpose and status of a feature.
 
-此函數會傳回一個 `FeatureDef` 物件（若找不到則傳回 null），它其實就是 `feature-switch.json` 設定檔中 `features` 底下的功能開關定義。
+This function returns a `FeatureDef` object (or null if not found), which is the feature switch definition from the `features` section of the `feature-switch.json` configuration file.
 
-以下是使用範例：
+Here is an example of how to use it:
 
 ```typescript
 import { FeatureSwitchHelper } from "feature-switch-helper";
 
 const featureDef = FeatureSwitchHelper.getFeatureDef("wip_exampleFeature01");
 if (featureDef) {
-  console.log(featureDef.isForceEnabled); // 輸出該功能是否被強制啟用
-  console.log(featureDef.isDevFeature); // 輸出該功能是否為開發環境專用功能
-  console.log(featureDef.isTestFeature); // 輸出該功能是否為測試環境專用功能
-  console.log(featureDef.isUatFeature); // 輸出該功能是否為 UAT 環境專用功能
-  console.log(featureDef.note); // 輸出該功能的備註說明
+  console.log(featureDef.isForceEnabled); // Outputs whether the feature is forcibly enabled
+  console.log(featureDef.isDevFeature); // Outputs whether the feature is for the dev environment
+  console.log(featureDef.isTestFeature); // Outputs whether the feature is for the test environment
+  console.log(featureDef.isUatFeature); // Outputs whether the feature is for the UAT environment
+  console.log(featureDef.note); // Outputs the note for the feature
 }
 
-// 如果希望確保名稱拼寫正確，則可以定義一個型別來限制功能名稱：
+// To ensure correct spelling, you can define a type to restrict feature names:
 type FeatureNames = "wip_exampleFeature01" | "wip_exampleFeature02";
 const featureDef2 = FeatureSwitchHelper.getFeatureDef<FeatureNames>(
   "wip_exampleFeature01"
@@ -270,17 +268,10 @@ if (featureDef2) {
 }
 ```
 
-由於此函數不會被功能開關驗證工具檢查，因此它並沒有如同 `isFeatureEnabled` 函數那樣的使用限制。
+Since this function is not checked by the feature switch validation tool, it does not have the same usage restrictions as the `isFeatureEnabled` function.
 
-## 結語
+# Finally
 
-希望你有好好閱讀這份說明文件，並能善加利用這個功能開關輔助工具來管理你的應用程式功能。
-
-如果沒有...
-
-請小心 Andrash 會隨時冒出來對你碎碎念 😁
-
-請務必正確使用功能開關，讓所有人在產品開發及維護上都能夠簡單、輕鬆。
-感謝你的配合。若有任何改善意見，歡迎隨時提出！
+Now that you have a powerful tool to manage your feature switches, please use it wisely to help your colleagues (or future you) maintain and deploy the project more easily!
 
 2025.11 Andrash Yang

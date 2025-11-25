@@ -20,8 +20,7 @@ console.log(
 );
 
 const DEFAULT_FEATURE_SWITCH_CONFIG_PATH = "feature-switch.json";
-const FEATURE_USAGE_REGEXP =
-  /isFeatureEnabled(?:<[\w\-]+>)?\(\s*['"`]([\w\-]+)['"`]\s*\)/g;
+const FEATURE_USAGE_REGEXP =/isFeatureEnabled(?:<[\w\-]+>)?\([\s\r\n]*['"`]([\w\-]+)['"`]\s*,?[\s\r\n]*\)/g;
 
 main(process.argv[2] || DEFAULT_FEATURE_SWITCH_CONFIG_PATH);
 
