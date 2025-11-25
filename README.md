@@ -1,20 +1,21 @@
-# Feature Switch Helper Manual
+# Feature Switch Helper Documentation
 
 This is a helper module for managing and checking feature switches. It allows you to enable or disable specific features in your application based on configuration.
 
-中文版本請參閱：[Feature Switch Helper 說明書 (中文)](./README_TC.md)
+中文版本請參閱：[Feature Switch Helper Documentation (Traditional Chinese)](./README_TC.md)
 
 > Sponsor:
 > This project is sponsored by [Havppen](https://www.havppen.com/): [Create your own "online course platform" and monetize your knowledge instantly!](https://www.havppen.com/)
 
 # Table of Contents
 
-- [How to Use](#how-to-use)
-  - [Initialization](#initialization)
-  - [Setting and Using Feature Switches](#setting-and-using-feature-switches)
-  - [Checking Feature Switches](#checking-feature-switches)
-  - [Running the Project](#running-the-project)
-  - [Committing Code](#committing-code)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [1. Initialization](#1-initialization)
+  - [2. Setting and Using Feature Switches](#2-setting-and-using-feature-switches)
+  - [3. Checking Feature Switches](#3-checking-feature-switches)
+  - [4. Running the Project](#4-running-the-project)
+  - [5. Committing Code](#5-committing-code)
 - [Setting up the feature-switch.json Configuration File](#setting-up-the-feature-switchjson-configuration-file)
   - [The `features` Property](#the-features-property)
   - [Enabling Feature Switches in a Production Environment](#enabling-feature-switches-in-a-production-environment)
@@ -25,9 +26,23 @@ This is a helper module for managing and checking feature switches. It allows yo
 - [Using the `getFeatureDef` Function](#using-the-getfeaturedef-function)
 - [Conclusion](#conclusion)
 
-## How to Use
+## Installation
 
-### Initialization
+To install the `feature-switch-helper` module, use the following command:
+
+```bash
+npm install @andrash/feature-switch-helper
+```
+
+or
+
+```bash
+pnpm add @andrash/feature-switch-helper
+```
+
+## Usage
+
+### 1. Initialization
 
 Before using `FeatureSwitchHelper`, you must initialize it when your application starts. This is usually done in your main file (e.g., `main.ts`).
 
@@ -41,7 +56,7 @@ FeatureSwitchHelper.init(environment, featureSwitchConfig);
 // ...
 ```
 
-### Setting and Using Feature Switches:
+### 2. Setting and Using Feature Switches:
 
 - First, create a `feature-switch.json` configuration file in the project root directory and define your feature switches in it. See [Setting up the feature-switch.json Configuration File](#setting-up-the-feature-switchjson-configuration-file) for details.
 
@@ -53,7 +68,7 @@ FeatureSwitchHelper.init(environment, featureSwitchConfig);
   3. Ensure the feature name is descriptive and clearly expresses its purpose.
   4. For example: `wip_newDashboard`, `deprecated_oldApi`, `experimental_aiFeature`.
 
-### Checking Feature Switches:
+### 3. Checking Feature Switches:
 
 - First, add the following script command to your `package.json`:
 
@@ -63,15 +78,12 @@ FeatureSwitchHelper.init(environment, featureSwitchConfig);
   }
   ```
 
-  - Please change the path to point to the `validate.js` script in the `feature-switch-helper` package.
-  - Note: We intentionally use `node` to run the script because `tsx` does not support the decorators required by packages like `class-transformer`, which would cause the validation script to fail.
-
-- Run the `pnpm feature-switch:validate` command to help check if the feature switches used in the code are consistent with the definitions in the configuration file. If the project has not been compiled, run `pnpm build` first. This command ensures that:
+- Run the `pnpm feature-switch:validate` command to help check if the feature switches used in the code are consistent with the definitions in the configuration file. This command ensures that:
   - All feature switches used in the code are defined in the `feature-switch.json` configuration file.
   - All feature switches defined in the `feature-switch.json` configuration file are used in the code (i.e., there should be no idle, unused feature switches).
-  - This also helps to find inconsistencies between the configuration file and the code due to typos.
+  - This also helps detect spelling mistakes in feature switch names and environment names used in the code and configuration file.
 
-### Running the Project:
+### 4. Running the Project:
 
 - Start your NestJS project normally. The feature switches will enable or disable corresponding features based on the configuration in `feature-switch.json`.
 - When the project starts, it will list all enabled and disabled feature switches in the console log, allowing you to confirm the current feature status. For example:
@@ -86,9 +98,9 @@ FeatureSwitchHelper.init(environment, featureSwitchConfig);
 - When the `FeatureSwitchHelper.isFeatureEnabled` function is called, it will log the usage of that feature switch in the console. For example: `Feature "exampleFeature01" is used.` or `Feature "exampleFeature02" is skipped.`.
 - Note: If an undefined feature switch is used while the project is running, an error will be thrown. If this error is not properly caught and handled, it may cause the project to terminate. Additionally, the project cannot detect "defined but unused feature switches" at runtime. Regularly running `pnpm feature-switch:validate` can help check for and avoid such issues.
 
-### Committing Code:
+### 5. Committing Code:
 
-- Before committing with git, the `pnpm feature-switch:validate` command will be automatically executed to ensure that all feature switch usage complies with the definitions in the configuration file. If the check fails, the commit will be blocked. Please fix the related issues before trying to commit again. (This is implemented using Husky).
+- It is recommanded to run the `pnpm feature-switch:validate` command automatically before committing with git to ensure that all feature switch usage complies with the definitions in the configuration file. You can achieve this by using tools like [Husky](https://typicode.github.io/husky/#/) to set up a pre-commit hook. This helps prevent issues related to feature switch usage from being introduced into the codebase.
 
 ## Setting up the feature-switch.json Configuration File
 
@@ -268,4 +280,4 @@ Since this function is not checked by the feature switch validation tool, it doe
 
 Now that you have a powerful tool to manage your feature switches, please use it wisely to help your colleagues (or future you) maintain and deploy the project more easily!
 
-2025.11 Andrash Yang
+Developer: Andrash Yang 2025.11

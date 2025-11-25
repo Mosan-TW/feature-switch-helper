@@ -1,4 +1,4 @@
-# Feature Switch Helper 說明書
+# Feature Switch Helper 說明文件
 
 這是一個用於管理和檢查功能開關（Feature Switch）的輔助工具模組。它允許你根據配置啟用或禁用應用程式中的特定功能。
 
@@ -11,12 +11,13 @@ For English version, please visit: [Feature Switch Helper Documentation (English
 
 # 目錄
 
+- [安裝](#安裝)
 - [使用方式](#使用方式)
-  - [初始化](#初始化)
-  - [設定與使用功能開關](#設定與使用功能開關)
-  - [檢查功能開關](#檢查功能開關)
-  - [執行專案](#執行專案)
-  - [提交程式碼](#提交程式碼)
+  - [1. 初始化](#1-初始化)
+  - [2. 設定與使用功能開關](#2-設定與使用功能開關)
+  - [3. 檢查功能開關](#3-檢查功能開關)
+  - [4. 執行專案](#4-執行專案)
+  - [5. 提交程式碼](#5-提交程式碼)
 - [設置 feature-switch.json 設定檔](#設置-feature-switchjson-設定檔)
   - [features 屬性](#features-屬性)
   - [在生產環境中啟用功能開關](#在生產環境中啟用功能開關)
@@ -27,9 +28,25 @@ For English version, please visit: [Feature Switch Helper Documentation (English
 - [使用 getFeatureDef 函數](#使用-getfeaturedef-函數)
 - [結語](#結語)
 
+## 安裝
+
+使用 npm：
+
+```bash
+npm install @andrash/feature-switch-helper
+```
+
+或
+
+使用 pnpm：
+
+```bash
+pnpm add @andrash/feature-switch-helper
+```
+
 ## 使用方式
 
-### 初始化
+### 1. 初始化
 
 在使用 `FeatureSwitchHelper` 之前，你必須先在你的應用程式啟動時進行初始化。這通常在你的主檔案（例如 `main.ts`）中完成。
 
@@ -43,7 +60,7 @@ FeatureSwitchHelper.init(environment, featureSwitchConfig);
 // ...
 ```
 
-### 設定與使用功能開關：
+### 2. 設定與使用功能開關：
 
 - 先在專案根目錄建立一個 `feature-switch.json` 設定檔，並在其中定義你的功能開關。詳見[設置 feature-switch.json 設定檔](#設置-feature-switchjson-設定檔)。
 
@@ -55,7 +72,7 @@ FeatureSwitchHelper.init(environment, featureSwitchConfig);
   3. 確保功能名稱具有描述性，能夠清楚表達其用途。
   4. 例如：`wip_newDashboard`、`deprecated_oldApi`、`experimental_aiFeature`。
 
-### 檢查功能開關：
+### 3. 檢查功能開關：
 
 - 先在 `package.json` 中新增以下 script 指令：
 
@@ -65,15 +82,12 @@ FeatureSwitchHelper.init(environment, featureSwitchConfig);
   }
   ```
 
-  - 請自行更改路徑，以指向 `feature-switch-helper` 套件中的 `validate.js` 腳本。
-  - 附註：這裡故意使用 `node` 來執行腳本，因為 `tsx` 不支援 `class-transformer` 等套件所需的裝飾器（decorators），會導致驗證腳本無法正常運行。
-
-- 執行 `pnpm feature-switch:validate` 指令，可協助檢查程式碼中使用的功能開關是否符合設定檔中的定義。若專案尚未編譯，請先執行 `pnpm build` 再執行此指令。此指令會確保：
+- 執行 `pnpm feature-switch:validate` 指令，可協助檢查程式碼中使用的功能開關是否符合設定檔中的定義。此指令會確保：
   - 程式碼中使用的功能開關，皆有在 `feature-switch.json` 設定檔中被定義。
   - `feature-switch.json` 設定檔中定義的功能開關，皆有在程式碼中被使用（即不應有閒置未使用的功能開關）。
-  - 這也有助於發現因為拼寫錯誤導致設定檔與程式碼不一致的問題。
+  - 這也有助於發現設定檔與程式碼中，功能開關名稱及環境名稱的拼寫錯誤。
 
-### 執行專案：
+### 4. 執行專案：
 
 - 正常啟動你的 NestJS 專案，功能開關將根據 `feature-switch.json` 設定檔中的配置來啟用或禁用相應的功能。
 - 專案啟動時，會在 console log 中列出所有已啟用及未啟用的功能開關，方便你確認目前的功能狀態。例如：
@@ -88,7 +102,7 @@ FeatureSwitchHelper.init(environment, featureSwitchConfig);
 - 當呼叫了 `FeatureSwitchHelper.isFeatureEnabled` 函數，會在 console log 中紀錄該功能開關的使用情況。例如：`Feature "exampleFeature01" is used.`或`Feature "exampleFeature02" is skipped.`。
 - 注意：專案運行時若使用了未定義的功能開關，將會拋出錯誤。若未妥善捕捉處理此錯誤，可能導致專案中止運行。另外，專案在執行階段並無法檢測出「設定檔中已定義，但未使用的功能開關」。經常執行 `pnpm feature-switch:validate` 指令，可協助檢查並避免此類問題。
 
-### 提交程式碼：
+### 5. 提交程式碼：
 
 - 建議在使用 git 提交 Commit 前，自動執行 `pnpm feature-switch:validate` 指令，確保所有功能開關的使用情況符合設定檔中的定義。可自行安裝/設定 [Husky](https://typicode.github.io/husky/#/) 套件來實現這個功能。
 
@@ -270,4 +284,4 @@ if (featureDef2) {
 
 現在你有了一份有力的工具來管理你的功能開關，請善用它以幫助你的同事（或未來的你）更容易的維護和佈署專案！
 
-2025.11 Andrash Yang
+開發者: Andrash Yang 2025.11
