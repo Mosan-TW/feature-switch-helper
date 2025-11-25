@@ -4,13 +4,6 @@ import { PlainObject } from "./types/plain-object.js";
 import { deepFreeze } from "./utils/deep-object.utils.js";
 import { toDto } from "./utils/dto.utils.js";
 
-export enum Environment {
-  DEVELOPMENT = "development",
-  TEST = "test",
-  UAT = "uat",
-  PRODUCTION = "production",
-}
-
 export interface ILogger {
   log: (message: string) => void;
   warn: (message: string | Error) => void;
@@ -32,7 +25,7 @@ export class FeatureSwitchHelper {
    * @param options 選項
    */
   static init(
-    environment: Environment,
+    environment: string,
     config: FeatureSwitchConfigDto | PlainObject<FeatureSwitchConfigDto>,
     options?: FeatureSwitchHelperOptions
   ): void {
@@ -83,13 +76,15 @@ export class FeatureSwitchHelper {
     return FeatureSwitchHelper._instance;
   }
 
-  private readonly environment: Environment;
+  private readonly environment: string;
   private readonly config: FeatureSwitchConfigDto;
   private readonly featureEnabledMap: Record<string, boolean>;
   private readonly logger: ILogger;
+  private readonly validEnvironmentSet?: Set<string>;
+  private readonly restrictedEnvironmentSet?: Set<string>;
 
   constructor(
-    environment: Environment,
+    environment: string,
     config: FeatureSwitchConfigDto,
     options?: FeatureSwitchHelperOptions
   ) {
@@ -98,9 +93,24 @@ export class FeatureSwitchHelper {
         "FeatureSwitchHelper constructor is private. Please use FeatureSwitchHelper.init() to initialize."
       );
     }
-    const { logger = console } = options || {};
+    const { validationOptions } = config;
+    if (validationOptions.validEnvironments) {
+      this.validEnvironmentSet = new Set<string>(
+        validationOptions.validEnvironments
+      );
+      this.assertIsValidEnvironment(environment);
+    }
+    if (validationOptions.restrictedEnvironments) {
+      this.restrictedEnvironmentSet = new Set<string>(
+        validationOptions.restrictedEnvironments
+      );
+      this.restrictedEnvironmentSet.forEach((restrictedEnv) => {
+        this.assertIsValidEnvironment(restrictedEnv);
+      });
+    }
     this.environment = environment;
     this.config = deepFreeze(config);
+    const { logger = console } = options || {};
     this.logger = logger;
     // 建立索引，以便快速查詢功能是否啟用
     this.featureEnabledMap = this.createFeatureEnabledMap(this.config.features);
@@ -148,14 +158,21 @@ export class FeatureSwitchHelper {
   ): Record<string, boolean> {
     const map: Record<string, boolean> = {};
     features.forEach((featureDef, featureName) => {
-      const isEnabled =
-        featureDef.isForceEnabled ||
-        (Environment.DEVELOPMENT === this.environment &&
-          featureDef.isDevFeature) ||
-        (Environment.TEST === this.environment && featureDef.isTestFeature) ||
-        (Environment.UAT === this.environment && featureDef.isUatFeature);
-
-      map[featureName] = isEnabled;
+      let isEnabled = false;
+      featureDef.environments.forEach((environment) => {
+        try {
+          this.assertIsValidEnvironment(environment);
+          if (environment === this.environment) {
+            isEnabled = true;
+            this.assertIsNotRestrictedEnvironment(environment);
+          }
+        } catch (error) {
+          throw new Error(
+            `Feature "${featureName}": ${(error as Error).message}`
+          );
+        }
+      });
+      map[featureName] = isEnabled || featureDef.isForceEnabled;
     });
     return map;
   }
@@ -176,5 +193,27 @@ export class FeatureSwitchHelper {
     this.logger.log(
       `Disabled Features: ${JSON.stringify(disabledFeatures, null, 2)}`
     );
+  }
+
+  private assertIsValidEnvironment(environment: string): void {
+    if (
+      this.validEnvironmentSet &&
+      !this.validEnvironmentSet.has(environment)
+    ) {
+      throw new Error(
+        `Invalid environment: ${environment}. Valid environments are: ${Array.from(
+          this.validEnvironmentSet
+        ).join(", ")}`
+      );
+    }
+  }
+
+  private assertIsNotRestrictedEnvironment(environment: string): void {
+    if (
+      this.restrictedEnvironmentSet &&
+      this.restrictedEnvironmentSet.has(environment)
+    ) {
+      throw new Error(`Cannot enable feature in restricted environment: ${environment}`);
+    }
   }
 }

@@ -1,7 +1,17 @@
-import { Expose, Type } from 'class-transformer'
-import { ArrayMinSize, IsArray, IsBoolean, IsInstance, IsOptional, IsString, ValidateNested } from 'class-validator'
+import { Expose, Type } from "class-transformer";
+import {
+  ArrayMinSize,
+  IsArray,
+  IsBoolean,
+  IsInstance,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from "class-validator";
 
-export class FeatureDefDto {
+export const DEFAULT_VALID_ENVIRONMENTS = ["development", "test", "production"];
+
+export class FeatureDefDto<Environment extends string = string> {
   /**
    * 是否強制啟用功能
    *
@@ -10,45 +20,22 @@ export class FeatureDefDto {
   @Expose()
   @IsBoolean()
   @IsOptional()
-  isForceEnabled: boolean = false
+  isForceEnabled: boolean = false;
 
   /**
-   * 是否為開發環境專用功能
-   *
-   * 若設置為 true，則該功能僅在開發環境 (development) 中啟用
+   * 功能可啟用的環境列表
    */
   @Expose()
-  @IsBoolean()
-  @IsOptional()
-  isDevFeature: boolean = false
-
-  /**
-   * 是否為測試環境專用功能
-   *
-   * 若設置為 true，則該功能僅在測試環境 (test) 中啟用
-   */
-  @Expose()
-  @IsBoolean()
-  @IsOptional()
-  isTestFeature: boolean = false
-
-  /**
-   * 是否為 UAT 環境專用功能
-   *
-   * 若設置為 true，則該功能僅在 UAT 環境中啟用
-   */
-  @Expose()
-  @IsBoolean()
-  @IsOptional()
-  isUatFeature: boolean = false
-
+  @IsArray()
+  @IsString({ each: true })
+  environments!: Environment[];
   /**
    * 功能備註
    */
   @Expose()
   @IsString()
   @IsOptional()
-  note?: string
+  note?: string;
 }
 
 export class FeatureSwitchValidationOptionsDto {
@@ -60,7 +47,7 @@ export class FeatureSwitchValidationOptionsDto {
   @Expose()
   @IsBoolean()
   @IsOptional()
-  shouldNotUseUndefinedFeatureSwitches: boolean = true
+  shouldNotUseUndefinedFeatureSwitches: boolean = true;
 
   /**
    * 是否強制所有在 `feature-switch.json` 中定義的功能開關均被使用
@@ -70,7 +57,7 @@ export class FeatureSwitchValidationOptionsDto {
   @Expose()
   @IsBoolean()
   @IsOptional()
-  shouldUseAllDefinedFeatureSwitches: boolean = true
+  shouldUseAllDefinedFeatureSwitches: boolean = true;
 
   /**
    * 用於驗證的檔案路徑模式
@@ -81,7 +68,41 @@ export class FeatureSwitchValidationOptionsDto {
   @IsArray()
   @IsString({ each: true })
   @ArrayMinSize(1)
-  filePatterns!: string[]
+  filePatterns!: string[];
+
+  /**
+   * 執行驗證時所使用的環境值
+   */
+  @Expose()
+  @IsString()
+  @IsOptional()
+  environment?: string;
+
+  /**
+   * 可接受的環境列表
+   *
+   * 若未指定，預設為 ["development", "test", "production"]
+   */
+  @Expose()
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayMinSize(1)
+  @IsOptional()
+  validEnvironments: Array<string> = DEFAULT_VALID_ENVIRONMENTS;
+
+  /**
+   * 不允許使用功能開關的環境列表
+   *
+   * 預設為 ["production"]。
+   *
+   * 在大多數情況下，我們並不建議在生產環境中使用功能開關，因為這可能會導致未經充分測試的功能被啟用，從而影響系統的穩定性和可靠性。
+   * 若一個功能已經足夠成熟並準備好在生產環境中使用，建議直接將該功能的程式碼整合到主程式碼庫中，而不是依賴功能開關來控制其啟用與否。
+   */
+  @Expose()
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  restrictedEnvironments?: Array<string> = ["production"];
 }
 
 export class FeatureSwitchConfigDto {
@@ -92,7 +113,7 @@ export class FeatureSwitchConfigDto {
   @Type(() => FeatureDefDto)
   @IsInstance(FeatureDefDto, { each: true })
   @ValidateNested({ each: true })
-  features!: Map<string, FeatureDefDto>
+  features!: Map<string, FeatureDefDto>;
 
   /**
    * 功能開關的驗證選項
@@ -101,5 +122,5 @@ export class FeatureSwitchConfigDto {
   @Type(() => FeatureSwitchValidationOptionsDto)
   @IsInstance(FeatureSwitchValidationOptionsDto)
   @ValidateNested()
-  validationOptions!: FeatureSwitchValidationOptionsDto
+  validationOptions!: FeatureSwitchValidationOptionsDto;
 }

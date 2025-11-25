@@ -7,10 +7,7 @@ import {
   FeatureDefDto,
   FeatureSwitchConfigDto,
 } from "../src/dto/feature-switch-config.dto.js";
-import {
-  Environment,
-  FeatureSwitchHelper,
-} from "../src/feature-switch-helper.js";
+import { FeatureSwitchHelper } from "../src/feature-switch-helper.js";
 import { loadJsonConfig } from "../src/utils/json-config.utils.js";
 
 console.log(
@@ -20,7 +17,8 @@ console.log(
 );
 
 const DEFAULT_FEATURE_SWITCH_CONFIG_PATH = "feature-switch.json";
-const FEATURE_USAGE_REGEXP =/isFeatureEnabled(?:<[\w\-]+>)?\([\s\r\n]*['"`]([\w\-]+)['"`]\s*,?[\s\r\n]*\)/g;
+const FEATURE_USAGE_REGEXP =
+  /isFeatureEnabled(?:<[\w\-]+>)?\([\s\r\n]*['"`]([\w\-]+)['"`]\s*,?[\s\r\n]*\)/g;
 
 main(process.argv[2] || DEFAULT_FEATURE_SWITCH_CONFIG_PATH);
 
@@ -33,8 +31,11 @@ function main(configPath: string) {
       exposeDefaultValues: true,
     },
   });
-  FeatureSwitchHelper.init(Environment.DEVELOPMENT, config);
   const { features, validationOptions } = config;
+  FeatureSwitchHelper.init(
+    validationOptions.environment || validationOptions.validEnvironments[0],
+    config
+  );
   const tsFilePaths = globbySync(config.validationOptions.filePatterns, {
     cwd: process.cwd(),
     absolute: true,

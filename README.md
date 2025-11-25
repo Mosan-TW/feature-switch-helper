@@ -32,12 +32,11 @@ This is a helper module for managing and checking feature switches. It allows yo
 Before using `FeatureSwitchHelper`, you must initialize it when your application starts. This is usually done in your main file (e.g., `main.ts`).
 
 ```typescript
-import { FeatureSwitchHelper, Environment } from "feature-switch-helper";
+import { FeatureSwitchHelper } from "feature-switch-helper";
 import * as featureSwitchConfig from "./feature-switch.json";
 
 // ...
-const environment =
-  (process.env.NODE_ENV as Environment) || Environment.DEVELOPMENT;
+const environment = process.env.NODE_ENV || "development";
 FeatureSwitchHelper.init(environment, featureSwitchConfig);
 // ...
 ```
@@ -100,23 +99,22 @@ A `feature-switch.json` configuration file typically looks like this:
   "features": {
     "wip_exampleFeature01": {
       "isForceEnabled": true,
-      "isDevFeature": false,
-      "isTestFeature": false,
-      "isUatFeature": false,
+      "environments": [],
       "note": "This is an example feature that is force enabled."
     },
     "wip_exampleFeature02": {
       "isForceEnabled": false,
-      "isDevFeature": false,
-      "isTestFeature": true,
-      "isUatFeature": true,
+      "environments": ["test", "uat"],
       "note": "This is an example feature for testing and UAT environments."
     }
   },
   "validationOptions": {
     "shouldNotUseUndefinedFeatureSwitches": true,
     "shouldUseAllDefinedFeatureSwitches": true,
-    "filePatterns": ["src/**/*.{ts,tsx,js,jsx}"]
+    "filePatterns": ["src/**/*.{ts,tsx,js,jsx}"],
+    "environment": "development",
+    "validEnvironments": ["development", "test", "uat", "production"],
+    "restrictedEnvironments": ["production"]
   }
 }
 ```
@@ -128,20 +126,17 @@ A `feature-switch.json` configuration file typically looks like this:
 The `features` object contains all feature switch definitions. Each property name of this object is the name of a feature switch, and its value is an object that defines the various properties of that feature switch:
 
 - `isForceEnabled`: A boolean value indicating whether the feature is forcibly enabled. This means the feature will be enabled regardless of the environment the project is running in, including development, testing, UAT, and production. Optional, defaults to `false`.
-- `isDevFeature`: A boolean value indicating whether the feature is for the development environment only. Optional, defaults to `false`.
-- `isTestFeature`: A boolean value indicating whether the feature is for the testing environment only. Optional, defaults to `false`.
-- `isUatFeature`: A boolean value indicating whether the feature is for the UAT (User Acceptance Testing) environment only. Optional, defaults to `false`.
+- `environments`: An array of strings listing the environments where the feature is enabled.
 - `note`: A string providing a note or description about the feature switch. Optional.
-
-※Note: The content of this document may not match the latest format due to a lack of maintenance. Please refer to the format defined in [`feature-switch-config.dto.ts`](src/dto/feature-switch-config.dto.ts).
 
 ### Enabling Feature Switches in a Production Environment
 
-By design, I have intentionally not included an `isProdFeature` property. This is because it would allow certain features to be enabled only in the production environment, bypassing other environments. Such a design could lead to inadequate validation of these features during development and testing, increasing the risk of problems in production. Therefore, to enable a feature switch in a production environment, the `isForceEnabled` property must be used. This ensures that when a feature is enabled in production, it can also be fully validated during development and testing.
+To enable a feature in a production environment, you have two options:
 
-Furthermore, in a normal workflow, when a feature is mature enough to be used in production, it should no longer be controlled by a feature switch. Instead, the feature's code should be directly integrated into the main codebase, and the relevant feature switch configuration should be removed. This reduces unnecessary complexity and ensures feature consistency across all environments.
+1.  Add `"production"` to the `environments` array. This is not the recommended approach and is restricted by default since it may lead to features being enabled in production without prior testing in other environments.
+2.  Set `isForceEnabled` to `true`. This will enable the feature in all environments, including production. This is the recommended approach since it will force the feature that is enabled in production to also be tested in development and testing environments.
 
-In other words, using a feature switch in a production environment is itself an unusual situation. That's why the word "Force" is used in the `isForceEnabled` property name—to emphasize the special nature of this case.
+Best Practice: In a normal workflow, when a feature is mature enough to be used in production, it should no longer be controlled by a feature switch. Instead, the feature's code should be directly integrated into the main codebase, and the relevant feature switch configuration should be removed. This reduces unnecessary complexity and ensures feature consistency across all environments.
 
 Tech Leads should pay special attention to feature switches that use the `isForceEnabled` property during code reviews to check for misuse of feature switches and request their removal, integrating the feature directly into the main code.
 
@@ -152,8 +147,9 @@ The `validationOptions` object is used to configure feature switch validation op
 - `shouldNotUseUndefinedFeatureSwitches`: A boolean value indicating whether the use of undefined feature switches should be prohibited. Optional, defaults to `true`. It is not recommended to disable this option to avoid problems caused by typos.
 - `shouldUseAllDefinedFeatureSwitches`: A boolean value indicating whether all defined feature switches should be required to be used. Optional, defaults to `true`. It is not recommended to disable this option, as too many idle feature switches increase maintenance costs.
 - `filePatterns`: An array of strings specifying the file patterns to check. This is a required parameter and must not be an empty array.
-
-※Note: The content of this document may not match the latest format due to a lack of maintenance. Please refer to the format defined in [`feature-switch-config.dto.ts`](src/dto/feature-switch-config.dto.ts).
+- `environment`: A string specifying the environment to use for validation. Optional.
+- `validEnvironments`: An array of strings specifying the acceptable environment names. Optional, defaults to `["development", "test", "production"]`.
+- `restrictedEnvironments`: An array of strings specifying the environments where feature switches are not allowed. Optional, defaults to `["production"]`. In most cases, it is not recommended to use feature switches in a production environment. This can lead to the activation of untested features, affecting system stability. If a feature is ready for production, it should be integrated into the main codebase rather than being controlled by a feature switch.
 
 ## Using the `isFeatureEnabled` Function
 
@@ -252,9 +248,7 @@ import { FeatureSwitchHelper } from "feature-switch-helper";
 const featureDef = FeatureSwitchHelper.getFeatureDef("wip_exampleFeature01");
 if (featureDef) {
   console.log(featureDef.isForceEnabled); // Outputs whether the feature is forcibly enabled
-  console.log(featureDef.isDevFeature); // Outputs whether the feature is for the dev environment
-  console.log(featureDef.isTestFeature); // Outputs whether the feature is for the test environment
-  console.log(featureDef.isUatFeature); // Outputs whether the feature is for the UAT environment
+  console.log(featureDef.environments); // Outputs the environments where the feature is enabled
   console.log(featureDef.note); // Outputs the note for the feature
 }
 
