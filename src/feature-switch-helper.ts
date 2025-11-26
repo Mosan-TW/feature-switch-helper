@@ -1,8 +1,8 @@
 import { FeatureDefDto } from "./dto/feature-switch-config.dto.js";
 import { FeatureSwitchConfigDto } from "./dto/feature-switch-config.dto.js";
-import { PlainObject } from "./types/plain-object.js";
+import { PlainObject } from "@andrash/dto-utils";
 import { deepFreeze } from "./utils/deep-object.utils.js";
-import { toDto } from "./utils/dto.utils.js";
+import { toDto } from "@andrash/dto-utils";
 
 export interface ILogger {
   log: (message: string) => void;
@@ -213,7 +213,9 @@ export class FeatureSwitchHelper {
       this.restrictedEnvironmentSet &&
       this.restrictedEnvironmentSet.has(environment)
     ) {
-      throw new Error(`Cannot enable feature in restricted environment: ${environment}`);
+      throw new Error(
+        `Cannot enable feature in restricted environment: ${environment}`
+      );
     }
   }
 }
